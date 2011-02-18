@@ -549,7 +549,7 @@
     <string name="account_settings_show_pictures_only_from_contacts">来自您的联系人的邮件</string>
     <string name="account_settings_show_pictures_always">全部邮件</string>
 
-    <string name="account_settings_composition">正在发送邮件</string>
+    <string name="account_settings_composition">发送邮件设置</string>
 
     <string name="account_settings_reply_after_quote_label">在引用的文本后进行回复</string>
     <string name="account_settings_reply_after_quote_summary">回复邮件时，原始邮件会显示在您的邮件的上方。</string>
@@ -564,7 +564,7 @@
 
     <!-- NEW: <string name="account_settings_general_title">General settings</string>-->
     <string name="account_settings_display_prefs_title">显示</string>
-    <string name="account_settings_sync">正在接受邮件</string>
+    <string name="account_settings_sync">接受邮件设置</string>
     <string name="account_settings_folders">文件夹</string>
     <string name="account_settings_message_lists">正在整理邮件</string>
     <string name="account_settings_message_view">正在显示邮件</string>
@@ -735,7 +735,7 @@
     <string name="account_settings_signature_label">签名</string>
     <string name="account_settings_signature_summary">将签名附加到每一封发出的邮件后面</string>
 
-    <string name="default_signature">-- \n抱歉暂时无法详细说明。这份邮件是使用安装有K-9 Mail的Android移动设备发送的。</string>
+    <string name="default_signature">-- \n发自Android上的K-9 Mail。</string>
     <string name="default_identity_description">初始身份标识</string>
     <string name="choose_identity">选择身份标识</string>
     <string name="choose_identity_title">选择身份标识</string>

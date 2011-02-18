@@ -47,10 +47,11 @@ public class AccountSetupOutgoing extends K9Activity implements OnClickListener,
     */
 
     private static final String authTypes[] = {
-        "PLAIN", "CRAM_MD5"
+        "PLAIN", "CRAM_MD5", "NTLM"
     };
     private EditText mUsernameView;
     private EditText mPasswordView;
+    private EditText mDomainView;
     private EditText mServerView;
     private EditText mPortView;
     private CheckBox mRequireLoginView;
@@ -96,6 +97,7 @@ public class AccountSetupOutgoing extends K9Activity implements OnClickListener,
 
         mUsernameView = (EditText)findViewById(R.id.account_username);
         mPasswordView = (EditText)findViewById(R.id.account_password);
+        mDomainView = (EditText)findViewById(R.id.account_domain);
         mServerView = (EditText)findViewById(R.id.account_server);
         mPortView = (EditText)findViewById(R.id.account_port);
         mRequireLoginView = (CheckBox)findViewById(R.id.account_require_login);
@@ -121,7 +123,8 @@ public class AccountSetupOutgoing extends K9Activity implements OnClickListener,
         // that makes me somewhat unhappy
         SpinnerOption authTypeSpinnerOptions[] = {
             new SpinnerOption(0, "PLAIN"),
-            new SpinnerOption(1, "CRAM_MD5")
+            new SpinnerOption(1, "CRAM_MD5"),
+            new SpinnerOption(2, "NTLM")
         };
 
 
@@ -202,6 +205,9 @@ public class AccountSetupOutgoing extends K9Activity implements OnClickListener,
                 }
                 if (userInfoParts.length > 2) {
                     authType = userInfoParts[2];
+                }
+                if (userInfoParts.length > 3) {
+                    mDomainView.setText(userInfoParts[3]);
                 }
             }
 
@@ -296,6 +302,10 @@ public class AccountSetupOutgoing extends K9Activity implements OnClickListener,
             String authType = ((SpinnerOption)mAuthTypeView.getSelectedItem()).label;
             if (mRequireLoginView.isChecked()) {
                 userInfo = usernameEnc + ":" + passwordEnc + ":" + authType;
+            }
+            Editable domain = mDomainView.getText();
+            if (domain!=null && domain.length()>0) {
+                userInfo += ":" + domain;
             }
             uri = new URI(smtpSchemes[securityType], userInfo, mServerView.getText().toString(),
                           Integer.parseInt(mPortView.getText().toString()), null, null, null);

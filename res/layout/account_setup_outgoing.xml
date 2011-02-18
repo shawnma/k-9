@@ -102,6 +102,19 @@
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
                 android:contentDescription="@string/account_setup_outgoing_password_label" />
+            <TextView
+                android:text="@string/account_setup_outgoing_domain_label"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorPrimary" />
+            <EditText
+                android:id="@+id/account_domain"
+                android:singleLine="true"
+                android:inputType="textEmailAddress"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:contentDescription="@string/account_setup_outgoing_domain_label" />
         </LinearLayout>
         <View
             android:layout_width="fill_parent"

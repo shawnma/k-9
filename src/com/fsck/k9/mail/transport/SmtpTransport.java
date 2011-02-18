@@ -12,6 +12,9 @@ import com.fsck.k9.mail.filter.PeekableInputStream;
 import com.fsck.k9.mail.filter.SmtpDataStuffing;
 import com.fsck.k9.mail.internet.MimeUtility;
 import com.fsck.k9.mail.store.TrustManagerFactory;
+import com.fsck.k9.mail.transport.ntlm.Type1Message;
+import com.fsck.k9.mail.transport.ntlm.Type2Message;
+import com.fsck.k9.mail.transport.ntlm.Type3Message;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
@@ -50,6 +53,8 @@ public class SmtpTransport extends Transport {
     String mPassword;
 
     String mAuthType;
+    
+    String mDomain = ""; // for NTLM
 
     int mConnectionSecurity;
 
@@ -114,6 +119,9 @@ public class SmtpTransport extends Transport {
                 }
                 if (userInfoParts.length > 2) {
                     mAuthType = userInfoParts[2];
+                }
+                if (userInfoParts.length > 3) {
+                    mDomain = userInfoParts[3];
                 }
             } catch (UnsupportedEncodingException enc) {
                 // This shouldn't happen since the encoding is hardcoded to UTF-8
@@ -225,6 +233,7 @@ public class SmtpTransport extends Transport {
             boolean authLoginSupported = false;
             boolean authPlainSupported = false;
             boolean authCramMD5Supported = false;
+            boolean authNtlmSupported = false;
             for (String result : results) {
                 if (result.matches(".*AUTH.*LOGIN.*$")) {
                     authLoginSupported = true;
@@ -234,6 +243,9 @@ public class SmtpTransport extends Transport {
                 }
                 if (result.matches(".*AUTH.*CRAM-MD5.*$") && mAuthType != null && mAuthType.equals("CRAM_MD5")) {
                     authCramMD5Supported = true;
+                }
+                if (result.matches(".*AUTH.*NTLM.*$") && "NTLM".equals(mAuthType)) {
+                    authNtlmSupported = true;
                 }
             }
 
@@ -245,6 +257,8 @@ public class SmtpTransport extends Transport {
                     saslAuthPlain(mUsername, mPassword);
                 } else if (authLoginSupported) {
                     saslAuthLogin(mUsername, mPassword);
+                } else if (authNtlmSupported) {
+                    saslAuthNtlm(mUsername, mPassword, localHost);
                 } else {
                     throw new MessagingException("No valid authentication mechanism found.");
                 }
@@ -539,5 +553,21 @@ public class SmtpTransport extends Transport {
         } catch (MessagingException me) {
             throw new AuthenticationFailedException("Unable to negotiate MD5 CRAM");
         }
+    }
+    
+    private void saslAuthNtlm(String username, String password, String localHost) throws IOException, MessagingException {
+        Type1Message message1=new Type1Message(0, mDomain, localHost);
+        String token = new String(Base64.encodeBase64(message1.toByteArray()));
+        List<String> respList = executeSimpleCommand("AUTH NTLM " + token);
+        if (respList.size() != 1) throw new AuthenticationFailedException("Unable to get initial challenge for NTLM");
+        Type2Message message2=new Type2Message(Base64.decodeBase64(respList.get(0).getBytes()));
+        if (K9.DEBUG && K9.DEBUG_PROTOCOL_SMTP)
+            Log.d(K9.LOG_TAG, message2.toString());
+        Type3Message message3 = new Type3Message(message2, password, mDomain, username, localHost, 0);
+        if (K9.DEBUG && K9.DEBUG_PROTOCOL_SMTP)
+            Log.d(K9.LOG_TAG, "user=" + username + " domain=" + mDomain);
+        token = new String(Base64.encodeBase64(message3.toByteArray()));
+        respList = executeSimpleCommand(token);
+        
     }
 }
